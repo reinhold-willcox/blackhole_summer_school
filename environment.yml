@@ -8,6 +8,3 @@ dependencies:
   - matplotlib
   - ipywidgets
   - jupyter_contrib_nbextensions
-  - random
-  - string
-  - time
