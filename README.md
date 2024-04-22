@@ -12,5 +12,6 @@
 
 
 #### For testing, delete later
+
 [Generate new environment](https://notebooks.gesis.org/binder/)
 [Project root](https://mybinder.org/v2/gh/reinhold-willcox/blackhole_summer_school/HEAD)

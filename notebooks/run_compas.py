@@ -32,7 +32,7 @@ def generate_outdir(str_length=10):
 
 def run_compas(*args, **kwargs):
     outdir=generate_outdir()
-    # !././scripts/COMPAS -n 1 -o 'data/on_the_fly_data/' -c {outdir}
+    # !./scripts/COMPAS -n 1 -o 'data/on_the_fly_data/' -c {outdir}
     return outdir
     
 def get_myf(outdir):
