@@ -17,6 +17,11 @@ import numpy as np
 import h5py as h5
 
 
+def compile_compas():
+    # !./scripts/make_compas.sh
+compile_compas()
+
+
 # +
 def generate_outdir(str_length=10):
     # Need a random string to hold the data
@@ -24,7 +29,7 @@ def generate_outdir(str_length=10):
     ascii_lowercase = list('abcdefghijklmnopqrstuvwxyz')
     random_str = ''.join(np.random.choice(ascii_lowercase) for i in range(str_length))
     return random_str
-    
+
 def run_compas(*args, **kwargs):
     outdir=generate_outdir()
     # !././scripts/COMPAS -n 1 -o 'data/on_the_fly_data/' -c {outdir}
