@@ -10,4 +10,4 @@ To run the notebooks in a [Binder environment](https://mybinder.readthedocs.io/e
 
 1. [Single Black Holes](https://notebooks.gesis.org/binder/jupyter/user/reinhold-willco-e_summer_school-vymfldnw/lab/tree/single_BH.ipynb)
 
-
+[Generate compas binder:](https://notebooks.gesis.org/binder/)
