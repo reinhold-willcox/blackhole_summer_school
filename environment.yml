@@ -4,5 +4,10 @@ channels:
 dependencies:
   - python
   - numpy
+  - h5py
   - matplotlib
+  - ipywidgets
   - jupyter_contrib_nbextensions
+  - random
+  - string
+  - time
