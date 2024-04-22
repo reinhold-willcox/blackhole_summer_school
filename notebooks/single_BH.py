@@ -198,12 +198,16 @@ interact(make_interactive_HR, logTcut=widgets.FloatSlider(min=-2.0, max=2.0, ste
 
 
 
+from astroUtils import PtoA
+mbh = 33
+p = 11.6 # yr
+m1 = 0.8
+a = PtoA(Mtot=mbh+m1, P=11.6*365.25) #AU
 
+a*215 # Rsol
 
+# !ls
 
-
-
-
-
+# !./COMPAS
 
 
