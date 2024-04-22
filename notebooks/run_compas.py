@@ -13,25 +13,33 @@
 #     name: python3
 # ---
 
-# +
 import numpy as np
 
-np.random.seed(np.datetime64('now').astype(int))
+
+def generate_outdir(str_length=10):
+    # Need a random string to hold the data
+
+    np.random.seed(np.datetime64('now').astype(int))
+    ascii_lowercase = list('abcdefghijklmnopqrstuvwxyz')
+    random_str = ''.join(np.random.choice(ascii_lowercase) for i in range(str_length))
+    return random_str
 
 
 # +
 def run_compas(*args, **kwargs):
-
-    # Need a random string to hold the data
-    str_length = 10
-    ascii_lowercase = list('abcdefghijklmnopqrstuvwxyz')
-    random_str = ''.join(np.random.choice(ascii_lowercase) for i in range(str_length))
+    outdir=generate_outdir()
+    # !./COMPAS -n 1 -o 'data/on_the_fly_data/' -c {outdir}
+    return outdir
     
-    outdir = '../data/{}/'.format(random_str)
+def get_myf(outdir):
+    return h5.File('data/on_the_fly_data/{}/{}.h5'.format(outdir, outdir), 'r')
+    
+# +
 
-    print(outdir)
-
-run_compas()
+outdir = run_compas()
+myf = get_myf(outdir)
+myf.keys()
 # -
+
 
 
