@@ -1,0 +1,4 @@
+g++
+libboost-all-dev
+libgsl-dev
+libhdf5-serial-dev
