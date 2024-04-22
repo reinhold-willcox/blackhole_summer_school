@@ -17,8 +17,10 @@ import numpy as np
 import h5py as h5
 
 
+# +
 def compile_compas():
-    # !./scripts/make_compas.sh
+    !(cd scripts/COMPAS-src/ && make clean && make -f Makefile)
+
 compile_compas()
 
 
@@ -32,12 +34,13 @@ def generate_outdir(str_length=10):
 
 def run_compas(*args, **kwargs):
     outdir=generate_outdir()
-    # !./scripts/COMPAS -n 1 -o 'data/on_the_fly_data/' -c {outdir}
+    compas_exe = "./scripts/COMPAS-src/COMPAS"
+    # !{compas_exe} -n 1 -o 'data/on_the_fly_data/' -c {outdir}
     return outdir
     
 def get_myf(outdir):
     return h5.File('data/on_the_fly_data/{}/{}.h5'.format(outdir, outdir), 'r')
-    
+
 # +
 
 outdir = run_compas()

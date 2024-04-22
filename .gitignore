@@ -3,3 +3,4 @@ on_the_fly_data/
 __pycache__
 .virtual_documents
 COMPAS
+*.o
