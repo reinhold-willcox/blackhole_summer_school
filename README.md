@@ -8,5 +8,10 @@
 
 To run the notebooks in a [Binder environment](https://mybinder.readthedocs.io/en/latest/), click the links below:
 
+[Generate new environment](https://notebooks.gesis.org/binder/)
+
 1. [Single Black Holes](https://notebooks.gesis.org/binder/jupyter/user/reinhold-willco-e_summer_school-vymfldnw/lab/tree/single_BH.ipynb)
+
+1. [COMPAS run](https://notebooks.gesis.org/binder/jupyter/user/reinhold-willco-e_summer_school-vymfldnw/lab/tree/single_BH.ipynb)
+
 
