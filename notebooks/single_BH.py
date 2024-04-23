@@ -39,7 +39,7 @@ from compasUtils import printCompasDetails
 def get_data(index, isSingles=True, isCoarse=True):
     first = 'singles' if isSingles else 'binaries'
     second = 'coarse' if isCoarse else 'fine'
-    return h5.File('../data/{}/{}/Detailed_Output/BSE_Detailed_Output_{}.h5'.format(first, second, index))
+    return h5.File('data/{}/{}/Detailed_Output/BSE_Detailed_Output_{}.h5'.format(first, second, index))
 
 
 # +
@@ -107,39 +107,76 @@ for index in range(9):
 #printCompasDetails(data)
 
 # Want to extract arrays for time, Lum, and Teff, and make an HR based on this
-time = np.zeros((9, get_data(0)['Time'][()].shape[0]))
-Lum =  np.zeros((9, get_data(0)['Time'][()].shape[0]))
-Teff = np.zeros((9, get_data(0)['Time'][()].shape[0]))
+isCoarse=True
+N_simulations=9
+upperLim = 9 if isCoarse else 100
 
-for index in range(100):
-
-    # Pick out the correct data file
-    data = get_data(index, isCoarse=False)
-
-    # Extract the data from this file
-    record_type = data['Record_Type'][()]
-    stellar_type = data['Stellar_Type(1)'][()]
-    mask = (record_type == 4) & (stellar_type < 7)
-    t = data['Time'][()][mask]
-    time[index] = t[-1] # fill to last value
-    time[index][:t.shape[0]] = t
-    l = data['Luminosity(1)'][()][mask]
-    Lum[index] = l[-1] # fill to last value
-    Lum[index][:l.shape[0]] = l
-    te = data['Teff(1)'][()][mask]
-    Teff[index]= te[-1]
-    Teff[index][:te.shape[0]] = te
+#time = np.zeros((9, 100)) #get_data(0, isCoarse=isCoarse)['Time'][()].shape[0]))
+Lum =  np.zeros((N_simulations, 100)) #get_data(0, isCoarse=isCoarse)['Time'][()].shape[0]))
+Teff = np.zeros((N_simulations, 100)) #get_data(0, isCoarse=isCoarse)['Time'][()].shape[0]))
 
 
-def make_interactive_HR(logTcut=-2):
+N_timesteps = 100
+Teff_at_t = np.zeros(N_timesteps)
+Lum_at_t =  np.zeros(N_timesteps)
+LogTcuts = np.linspace(-2, 2, N_timesteps)
+for idx_timestep in range(N_timesteps):
+    Tcut =  np.power(10.0, LogTcuts[idx_timestep])
+  
+    for idx_star in range(N_simulations):
+        # Pick out the correct data file
+        data = get_data(idx_star, isCoarse=isCoarse)
+    
+        # Extract the data from this file
+        record_type = data['Record_Type'][()]
+        stellar_type = data['Stellar_Type(1)'][()]
+        mask = (record_type == 4) & (stellar_type < 7)
+        time = data['Time'][()][mask]
+        idx_time = np.where(time < Tcut)[0][-1]
+        #print(time[:10])
+        #print(Tcut)
+        #print(idx_time)
+        
+        Lum[idx_star, idx_timestep] = data['Luminosity(1)'][()][mask][idx_time]
+        Teff[idx_star, idx_timestep] = data['Teff(1)'][()][mask][idx_time]
+        
+        #time[idx_star] = t[-1] # fill to last value
+        #time[idx_star][:t.shape[0]] = t
+        #l = data['Luminosity(1)'][()][mask]
+        #Lum[idx_star] = l[-1] # fill to last value
+        #Lum[idx_star][:l.shape[0]] = l
+        #te = data['Teff(1)'][()][mask]
+        #Teff[idx_star]= te[-1]
+        #Teff[idx_star][:te.shape[0]] = te
 
+
+    # Get an array of values at each timestep
+
+    #time_pre = np.where(time < np.power(10.0, logTcut), time, 0)
+    #max_t = np.max(time_pre, axis=1)
+    #mask = np.where( time == max_t[:,None], True, False)
+    #print(mask)
+
+#Teff
+#Lum 
+
+
+# -
+
+def make_interactive_HR(iwidget=0):
+    # widget spans 0 to N_timestps
+    
+    
     fig, ax = plt.subplots(figsize=(6, 4))
 
-    time_pre = np.where(time < np.power(10.0, logTcut), time, 0)
-    max_t = np.max(time_pre, axis=1)
-    mask = np.where( time == max_t[:,None], True, False)
+    #logTcut = LogTcut[iwidget]    
+    #time_pre = np.where(time < np.power(10.0, logTcut), time, 0)
+    #max_t = np.max(time_pre, axis=1)
+    #mask = np.where( time == max_t[:,None], True, False)
 
-    ax.plot(Teff[mask], Lum[mask], 'bo')
+    iwidget = int(iwidget)
+    print(iwidget)
+    ax.plot(Teff[:,iwidget], Lum[:,iwidget], 'bo')
 
     xlim = (1e3, 1e5) #ax.get_xlim()
     ylim = (1e3, 1e8) #ax.get_ylim()
@@ -148,9 +185,10 @@ def make_interactive_HR(logTcut=-2):
     ax.invert_xaxis()
     ax.set_xlabel(r'Effective Temperature [T/K]')
     ax.set_ylabel(r'Luminosity [$L/L_\odot$]')
+    ax.text(x=.95,y=.95,s=str(iwidget), transform=ax.transAxes)
 
    # Add lines of const radii
-    for R in np.logspace(-1, 5, 13):
+    for R in np.logspace(-1, 5, 7):
         #print(R)
         exp = "{:.2e}".format(R)
         #print(exp)
@@ -171,7 +209,7 @@ def make_interactive_HR(logTcut=-2):
         Tbot = np.sqrt(np.sqrt(Lbot / (R * R))) * 6e3  # K
         Lrgt = get_L(Trgt / 6e3)
         alpha = 0.4
-        s = "$R_\odot^{{{exp}}}$".format(exp=exp)
+        s = "$10^{{{exp}}}R_\odot$".format(exp=exp[-1:])
         if (Tbot > Trgt) and (Tbot < xlim[1]):
             ax.text(x=Tbot, y=Lbot, s=s, alpha=alpha)
         elif (Lrgt > Lbot) and (Lrgt < ylim[1]):
@@ -181,33 +219,29 @@ def make_interactive_HR(logTcut=-2):
     ax.set_ylim(ylim)
 #colormap = mpl.cm.rainbow
 
+interact(make_interactive_HR, iwidget=widgets.FloatSlider(min=0, max=100, step=1))
 
-# -
+play = widgets.Play( value=0, min=0, max=100, step=1, interval=5, description="Press play", disabled=False, repeat=True )
+#interact(make_interactive_HR, logTcut=widgets.Play( value=0, min=0, max=4, step=.1, interval=500, description="Press play", disabled=False ))
+slider = widgets.IntSlider()
+widgets.jslink((play, 'value'), (slider, 'value'))
+widgets.HBox([play, slider])
 
-interact(make_interactive_HR, logTcut=widgets.FloatSlider(min=-2.0, max=2.0, step=0.01, value=-2.0))
-
-
-
-
-
-
-
+interact(make_interactive_HR, iwidget=widgets.Play( value=0, min=0, max=100, step=1, interval=5, description="Press play", disabled=False, repeat=True ))
 
 
 
 
 
 
-from astroUtils import PtoA
-mbh = 33
-p = 11.6 # yr
-m1 = 0.8
-a = PtoA(Mtot=mbh+m1, P=11.6*365.25) #AU
 
-a*215 # Rsol
 
-# !ls
 
-# !./COMPAS
+
+
+
+
+
+
 
 
