@@ -29,7 +29,7 @@ import h5py as h5
 import matplotlib.pyplot as plt
 
 import ipywidgets as widgets
-from ipywidgets import HBox, VBox, interact
+from ipywidgets import HBox, VBox, interact, interactive
 
 from compasUtils import printCompasDetails
 
@@ -111,115 +111,95 @@ isCoarse=True
 N_simulations=9
 upperLim = 9 if isCoarse else 100
 
-#time = np.zeros((9, 100)) #get_data(0, isCoarse=isCoarse)['Time'][()].shape[0]))
-Lum =  np.zeros((N_simulations, 100)) #get_data(0, isCoarse=isCoarse)['Time'][()].shape[0]))
-Teff = np.zeros((N_simulations, 100)) #get_data(0, isCoarse=isCoarse)['Time'][()].shape[0]))
+N_timesteps = 1000
+Lum =  np.zeros((N_simulations, N_timesteps)) 
+Teff = np.zeros((N_simulations, N_timesteps)) 
 
-
-N_timesteps = 100
-Teff_at_t = np.zeros(N_timesteps)
-Lum_at_t =  np.zeros(N_timesteps)
-LogTcuts = np.linspace(-2, 2, N_timesteps)
-for idx_timestep in range(N_timesteps):
-    Tcut =  np.power(10.0, LogTcuts[idx_timestep])
-  
-    for idx_star in range(N_simulations):
-        # Pick out the correct data file
-        data = get_data(idx_star, isCoarse=isCoarse)
+logTimesteps = np.linspace(-2, 2, N_timesteps)
+for idx_star in range(N_simulations):
     
-        # Extract the data from this file
-        record_type = data['Record_Type'][()]
-        stellar_type = data['Stellar_Type(1)'][()]
-        mask = (record_type == 4) & (stellar_type < 7)
-        time = data['Time'][()][mask]
-        idx_time = np.where(time < Tcut)[0][-1]
-        #print(time[:10])
-        #print(Tcut)
-        #print(idx_time)
-        
-        Lum[idx_star, idx_timestep] = data['Luminosity(1)'][()][mask][idx_time]
-        Teff[idx_star, idx_timestep] = data['Teff(1)'][()][mask][idx_time]
-        
-        #time[idx_star] = t[-1] # fill to last value
-        #time[idx_star][:t.shape[0]] = t
-        #l = data['Luminosity(1)'][()][mask]
-        #Lum[idx_star] = l[-1] # fill to last value
-        #Lum[idx_star][:l.shape[0]] = l
-        #te = data['Teff(1)'][()][mask]
-        #Teff[idx_star]= te[-1]
-        #Teff[idx_star][:te.shape[0]] = te
+    data = get_data(idx_star, isCoarse=isCoarse)
+    record_type = data['Record_Type'][()]
+    stellar_type = data['Stellar_Type(1)'][()]
+    mask = (record_type == 4) & (stellar_type < 7)
+    Lum[idx_star, :]  = np.interp(logTimesteps, np.log10(data['Time'][()][mask]), data['Luminosity(1)'][()][mask])
+    Teff[idx_star, :] = np.interp(logTimesteps, np.log10(data['Time'][()][mask]), data['Teff(1)'][()][mask])
 
 
-    # Get an array of values at each timestep
-
-    #time_pre = np.where(time < np.power(10.0, logTcut), time, 0)
-    #max_t = np.max(time_pre, axis=1)
-    #mask = np.where( time == max_t[:,None], True, False)
-    #print(mask)
-
-#Teff
-#Lum 
 
 
+# +
+
+mpl.use('TkAgg')
+
+# +
+fig, ax = plt.subplots(figsize=(6, 4))
+xlim = (1e3, 1e5) #ax.get_xlim()
+ylim = (1e3, 1e8) #ax.get_ylim()
+ax.set_xscale('log')
+ax.set_yscale('log')
+ax.invert_xaxis()
+ax.set_xlabel(r'Effective Temperature [T/K]')
+ax.set_ylabel(r'Luminosity [$L/L_\odot$]')
+ax.set_xlim(xlim[::-1])
+ax.set_ylim(ylim)
+#Add lines of const radii
+"""
+for R in np.logspace(-1, 5, 7):
+    #print(R)
+    exp = "{:.2e}".format(R)
+    #print(exp)
+    #exp = exp[-3] + exp[-1]
+    #if ((int(exp) % 2) == 1):  # skip odd ones to remove clutter
+    #    continue
+    T_K = np.logspace(3, 7, 41)  # in K
+    T = T_K / 6e3  # Tsol=6e3K
+
+    def get_L(t):  # assumes K
+        return R * R * t * t * t * t
+
+    L = get_L(T)
+    ax.plot(T_K, L, '--k', alpha=0.2)
+    # Plot the Rsol text at the bottom and right
+    Lbot = ylim[0] * 8  # Lsun  -2
+    Trgt = xlim[0] * 2  # 3e3
+    Tbot = np.sqrt(np.sqrt(Lbot / (R * R))) * 6e3  # K
+    Lrgt = get_L(Trgt / 6e3)
+    alpha = 0.4
+    s = "$10^{{{exp}}}R_\odot$".format(exp=exp[-1:])
+    if (Tbot > Trgt) and (Tbot < xlim[1]):
+        ax.text(x=Tbot, y=Lbot, s=s, alpha=alpha)
+    elif (Lrgt > Lbot) and (Lrgt < ylim[1]):
+        ax.text(x=Trgt, y=Lrgt, s=s, alpha=alpha)
+"""
+
+
+@widgets.interact(iwidget=widgets.FloatSlider(min=0, max=1000, step=1))
+def update(iwidget=0):
+    # widget spans 0 to N_timestps
+    #[l.remove() for l in ax.lines]
+    #print(iwidget)
+    iwidget = int(iwidget)
+    #print(iwidget)
+    print(Teff[:,iwidget])
+    print(Lum[:,iwidget])
+    #ax.plot(Teff[:,iwidget], Lum[:,iwidget], 'bo')
+    ax.plot(Teff[:,iwidget], Lum[:,iwidget], 'b')
+    #fig.show()
+    return fig
+
+#interactive_plot = interactive(update, iwidget=widgets.FloatSlider(min=0, max=1000, step=1))
+#output = interactive_plot.children[-1]
+#interactive_plot
+#ax.text(x=.95,y=.95,s=str(iwidget), transform=ax.transAxes)
+
+#fig
+#colormap = mpl.cm.rainbow
 # -
 
-def make_interactive_HR(iwidget=0):
-    # widget spans 0 to N_timestps
-    
-    
-    fig, ax = plt.subplots(figsize=(6, 4))
 
-    #logTcut = LogTcut[iwidget]    
-    #time_pre = np.where(time < np.power(10.0, logTcut), time, 0)
-    #max_t = np.max(time_pre, axis=1)
-    #mask = np.where( time == max_t[:,None], True, False)
 
-    iwidget = int(iwidget)
-    print(iwidget)
-    ax.plot(Teff[:,iwidget], Lum[:,iwidget], 'bo')
 
-    xlim = (1e3, 1e5) #ax.get_xlim()
-    ylim = (1e3, 1e8) #ax.get_ylim()
-    ax.set_xscale('log')
-    ax.set_yscale('log')
-    ax.invert_xaxis()
-    ax.set_xlabel(r'Effective Temperature [T/K]')
-    ax.set_ylabel(r'Luminosity [$L/L_\odot$]')
-    ax.text(x=.95,y=.95,s=str(iwidget), transform=ax.transAxes)
-
-   # Add lines of const radii
-    for R in np.logspace(-1, 5, 7):
-        #print(R)
-        exp = "{:.2e}".format(R)
-        #print(exp)
-        #exp = exp[-3] + exp[-1]
-        #if ((int(exp) % 2) == 1):  # skip odd ones to remove clutter
-        #    continue
-        T_K = np.logspace(3, 7, 41)  # in K
-        T = T_K / 6e3  # Tsol=6e3K
-
-        def get_L(t):  # assumes K
-            return R * R * t * t * t * t
-
-        L = get_L(T)
-        ax.plot(T_K, L, '--k', alpha=0.2)
-        # Plot the Rsol text at the bottom and right
-        Lbot = ylim[0] * 8  # Lsun  -2
-        Trgt = xlim[0] * 2  # 3e3
-        Tbot = np.sqrt(np.sqrt(Lbot / (R * R))) * 6e3  # K
-        Lrgt = get_L(Trgt / 6e3)
-        alpha = 0.4
-        s = "$10^{{{exp}}}R_\odot$".format(exp=exp[-1:])
-        if (Tbot > Trgt) and (Tbot < xlim[1]):
-            ax.text(x=Tbot, y=Lbot, s=s, alpha=alpha)
-        elif (Lrgt > Lbot) and (Lrgt < ylim[1]):
-            ax.text(x=Trgt, y=Lrgt, s=s, alpha=alpha)
-            
-    ax.set_xlim(xlim[::-1])
-    ax.set_ylim(ylim)
-#colormap = mpl.cm.rainbow
-
-interact(make_interactive_HR, iwidget=widgets.FloatSlider(min=0, max=100, step=1))
 
 play = widgets.Play( value=0, min=0, max=100, step=1, interval=5, description="Press play", disabled=False, repeat=True )
 #interact(make_interactive_HR, logTcut=widgets.Play( value=0, min=0, max=4, step=.1, interval=500, description="Press play", disabled=False ))
@@ -227,7 +207,7 @@ slider = widgets.IntSlider()
 widgets.jslink((play, 'value'), (slider, 'value'))
 widgets.HBox([play, slider])
 
-interact(make_interactive_HR, iwidget=widgets.Play( value=0, min=0, max=100, step=1, interval=5, description="Press play", disabled=False, repeat=True ))
+interact(make_interactive_HR, iwidget=widgets.Play( value=0, min=0, max=1000, step=5, interval=2, description="Press play", disabled=False, repeat=True ))
 
 
 
@@ -243,5 +223,48 @@ interact(make_interactive_HR, iwidget=widgets.Play( value=0, min=0, max=100, ste
 
 
 
+# +
+# set up plot
+#fig, ax = plt.subplots(figsize=(6, 4))
+#.grid(True)
+ 
+# generate x values
+x = np.linspace(0, 2 * np.pi, 1000)
+ 
+ 
+def my_sine(x, w, amp, phi):
+    """
+    Return a sine for x with angular frequeny w and amplitude amp.
+    """
+    return amp*np.sin(w * (x-phi))
+ 
+ 
+@widgets.interact(w=(0, 10, 1), amp=(0, 4, .1), phi=(0, 2*np.pi+0.01, 0.01))
+def update(w = 1.0, amp=1, phi=0):
+    """Remove old lines from plot and plot new one"""
+    plt.figure()
+    plt.ylim([-4, 4])
+    [l.remove() for l in ax.lines]
+    plt.plot(x, my_sine(x, w, amp, phi), color='C0')
+
+
+# +
+# %matplotlib inline
+from ipywidgets import interactive
+import matplotlib.pyplot as plt
+import numpy as np
+
+def f(m, b):
+    plt.figure()
+    x = np.linspace(-10, 10, num=1000)
+    plt.plot(x, m * x + b)
+    plt.ylim(-5, 5)
+    plt.show()
+
+interactive_plot = interactive(f, m=(-2.0, 2.0), b=(-3, 3, 0.5))
+output = interactive_plot.children[-1]
+output.layout.height = '500px'
+interactive_plot
+# -
 
 
