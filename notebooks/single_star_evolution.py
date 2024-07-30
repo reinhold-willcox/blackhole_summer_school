@@ -75,7 +75,7 @@ YouTubeVideo('YbdwTwB8jtc', width=800, height=400)
 #
 # ##### ❓ Q: What are the differences between a proton, a neutron, and an electron?  
 #
-#  <img src="data/images/h_he_atoms.png" alt="Drawing" style="width: 500px;"/>
+# <img src="data/images/h_he_atoms.png" alt="Drawing" style="width: 500px;"/>
 
 
 
