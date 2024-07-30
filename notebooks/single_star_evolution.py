@@ -20,7 +20,7 @@
 # ##### This is a jupyter notebook. It allows you to write down your thoughts, show images and videos, and run code interactively. Try changing things and see what happens!
 
 # +
-# Import external packages, and supply settings used throughout the tutorial - you can ignore this cell
+    # Import external packages, and supply settings used throughout the tutorial - you can ignore this cell
 import numpy as np
 import h5py as h5
 import matplotlib as mpl
@@ -28,69 +28,68 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from ipywidgets import AppLayout, FloatSlider, Play, IntSlider, widgets, HBox, VBox, interact, interactive
 from IPython.display import YouTubeVideo
-from scripts.BHSummerSchoolUtils import printCompasDetails, get_data, make_interactive_widget #, make_HR_diag
+from scripts.BHSummerSchoolUtils import printCompasDetails, get_data, make_interactive_widget 
 
 # %matplotlib widget
 # -
 
 
-
-# # 1. How do stars form?
+# ### 1. How do stars form?
 #
-# ## Many Black Holes come from stars, so to understand Black Holes we have to understand stars. But not all stars can produce Black Holes. 
+# #### Many Black Holes come from stars, so to understand Black Holes we have to understand stars. But not all stars can produce Black Holes. 
 #
-# ## To understand which kinds of stars can become Black Holes, we need to understand how stars work, and how they evolve throughout their lives.
+# #### To understand which kinds of stars can become Black Holes, we need to understand how stars work, and how they evolve throughout their lives.
 #
-# ### ❓ Q: What is a star?  
+# #### ❓ Q: What is a star?  
 #
-#  <img src="data/images/lmc_smc.jpg" alt="Drawing" style="width: 800px;"/>
-
-
-
-# ## A star forms when a big cloud of interstellar gas collapses under its own weight & gravity. 
-#
-# ### - The gas is composed primarily of Hydrogen, with maybe a bit of Helium as well. We sometimes abbreviate Hydrogen to just $H$, and Helium to just $He$.
-#
-# ### - The cloud molecules compress more and more, increasing in temperature and pressure. 
-#
-# ### The video below shows a simulation of stars forming in the collapse of a gas cloud.
-#
-
-YouTubeVideo('YbdwTwB8jtc', width=800, height=500)
+#  <img src="data/images/lmc_smc.jpg" alt="Drawing" style="width: 600px;"/>
 
 
 
-# ## When the temperature and pressure become high enough, the Hydrogen starts to fuse together. 
+# #### A star forms when a big cloud of interstellar gas collapses under its own weight & gravity. 
 #
-# ## This is called _nucleosynthesis_, and the star is "born" when nucleosynthesis starts. 
+# ##### - The gas is composed primarily of Hydrogen, with maybe a bit of Helium as well. We sometimes abbreviate Hydrogen to just $H$, and Helium to just $He$.
 #
-#  <img src="data/images/PeriodicTable-Detail-Types-batlow-sInk-Fabio-Crameri.png" alt="Drawing" style="width: 800px;"/>
+# ##### - The cloud molecules compress more and more, increasing in temperature and pressure. 
+#
+# ##### The video below shows a simulation of stars forming in the collapse of a gas cloud.
+#
+
+YouTubeVideo('YbdwTwB8jtc', width=800, height=400)
 
 
 
-# ## As some of you may know, a Hydrogen atom is the simplest atom. It is composed of just a proton in the nucleus, with an electron around it. 
+# #### When the temperature and pressure become high enough, the Hydrogen starts to fuse together. 
 #
-# ### - But in the hot, high pressure cores of stars, the electrons are unbound, so Hydrogen is just a proton. 
+# #### This is called _nucleosynthesis_, and the star is "born" when nucleosynthesis starts. 
 #
-# ### - When the Hydrogens (or protons) start smashing together, you create Helium. Helium is 2 protons and 2 neutrons (since we are ignoring the electrons here). 
+#  <img src="data/images/PeriodicTable-Detail-Types-batlow-sInk-Fabio-Crameri.png" alt="Drawing" style="width: 1000px;"/>
+
+
+
+# #### As some of you may know, a Hydrogen atom is the simplest atom. It is composed of just a proton in the nucleus, with an electron around it. 
 #
-# ### ❓ Q: What are the differences between a proton, a neutron, and an electron?  
+# ##### - But in the hot, high pressure cores of stars, the electrons are unbound, so Hydrogen is just a proton. 
+#
+# ##### - When the Hydrogens (or protons) start smashing together, you create Helium. Helium is 2 protons and 2 neutrons (since we are ignoring the electrons here). 
+#
+# ##### ❓ Q: What are the differences between a proton, a neutron, and an electron?  
 #
 #  <img src="data/images/h_he_atoms.png" alt="Drawing" style="width: 500px;"/>
 
 
 
-# ## To form $He$ in a star, you need 4 $H$ to fuse together. This process is _nuclear fusion_.
+# #### To form $He$ in a star, you need 4 $H$ to fuse together. This process is _nuclear fusion_.
 #
-# <img src="data/images/Proton-proton_reaction_chain.jpg" alt="Drawing" style="width: 800px; "/>
+# <img src="data/images/Proton-proton_reaction_chain.jpg" alt="Drawing" style="width: 600px; "/>
 
 #
 
-# ## The main idea here is that if you start with 4 $H$ and you keep smashing them together, you end up with $He$, and some extra energy.
+# #### The main idea here is that if you start with 4 $H$ and you keep smashing them together, you end up with $He$, and some extra energy.
 #
-# ## Protons and neutrons have nearly the same mass, so we can think about a $H$ atom having one “mass” (or “atomic mass unit” amu) and $He$ having a mass of 4 amu. 
+# #### Protons and neutrons have nearly the same mass, so we can think about a $H$ atom having one “mass” (or “atomic mass unit” amu) and $He$ having a mass of 4 amu. 
 #
-# ### - But if we are more careful, the masses don’t exactly line up...
+# ##### - But if we are more careful, the masses don’t exactly line up...
 
 # +
 # Calculate the mass difference in the reaction, using masses defined in amu
@@ -105,13 +104,13 @@ print("The difference in mass before and after is {:.4f} amu".format(mass_differ
 
 
 
-# ## Where did the mass go? Mass is supposed to be conserved right?
+# #### Where did the mass go? Mass is supposed to be conserved right?
 #
-# ### - The answer is that sometimes mass _by itself_ is not conserved, but mass and energy together are. 
+# ##### - The answer is that sometimes mass _by itself_ is not conserved, but mass and energy together are. 
 #
-# ### - Here, the missing mass is actually being converted into energy (via the Gamma Rays and Neutrinos)
+# ##### - Here, the missing mass is actually being converted into energy (via the Gamma Rays and Neutrinos)
 #
-# ### - To calculate how much energy was released, we need a way to convert between mass and energy.
+# ##### - To calculate how much energy was released, we need a way to convert between mass and energy.
 #
 # <img src="data/images/emc2.jpg" alt="Drawing" style="width: 500px; "/>
 
@@ -133,52 +132,79 @@ print("By comparison, if you were to drop a 10g pin from a height of 1 meter, it
 
 
 
-# ## This seems like a really small amount, but there's so much material lying around in the center of the sun that this reaction happens _a lot_.
+# #### This seems like a really small amount, but there's so much material lying around in the center of the sun that this reaction happens _a lot_.
 #
-# ### - Much of this energy is released as photons. Photons try to move in a straight line to escape the star, but in the dense core, they can easily get intercepted by other atoms. 
+# ##### - Much of this energy is released as photons. Photons try to move in a straight line to escape the star, but in the dense core, they can easily get intercepted by other atoms. 
 #
-# ### - Photons can be absorbed and re-emitted many millions of times before they finally escape the star. 
+# ##### - Photons can be absorbed and re-emitted many millions of times before they finally escape the star. 
 #
-# <img src="data/images/thesurfaceofthesun.jpg" alt="Drawing" style="width: 800px; "/>
+# <img src="data/images/thesurfaceofthesun.jpg" alt="Drawing" style="width: 600px; "/>
 
-# #### Fun fact! Because of all the bouncing around and re-directing that a photon goes through, its takes between several thousand and several million years for a photon to escape from the sun! 
+# ##### Fun fact! Because of all the bouncing around and re-directing that a photon goes through, its takes between several thousand and several million years for a photon to escape from the sun! 
 #
-# #### If it were unimpeded, it would take only a few seconds.
+# ###### If it were unimpeded, it would take only a few seconds.
 
 
 
-# ## Since photons carry momentum, this momentum pushes on the atoms that intercept them, creating an outward pressure. 
+# #### Since photons carry momentum, this momentum pushes on the atoms that intercept them, creating an outward pressure. 
 #
-# ### - This pressure is what keeps the star from collapsing under its own weight. 
+# ##### - This pressure is what keeps the star from collapsing under its own weight. 
 #
-# ### - Without nuclear reactions producing photons, energy, and pressure, the star would continue to contract. 
+# ##### - Without nuclear reactions producing photons, energy, and pressure, the star would continue to contract. 
 #
 # <img src="data/images/hydrostat_equil.jpg" alt="Drawing" style="width: 600px; "/>
 
 #
 
-# ## So now we know how stars remain in balance, or what we call _hydrostatic equilibrium_, at any given moment in time
+
+
+# #### So now we know how stars remain in balance, or what we call _hydrostatic equilibrium_, at any given moment in time
 #
-# ### - But what happens over the course of their lifetimes? 
+# ##### - But what happens over the course of their lifetimes? 
 #
-# ### - How do they evolve? 
+# ##### - How do they evolve? 
 #
-#
-#  <img src="data/images/Diagram_of_the_life_of_Sun-like_stars.jpg" alt="Drawing" style="width: 1000px;"/>
+# <img src="data/images/Diagram_of_the_life_of_Sun-like_stars.jpg" alt="Drawing" style="width: 1000px;"/>
 
 
 
-# ## Stars age at different rates. The more _massive_ star star, the faster it ages, and the shorter its life will be.
+# ### Stellar evolution can be very complex. We model it using a set of couple _differential equations_. 
 #
-# ### - Stars can lose mass through _winds_. More massive stars have higher winds, so they will lose more mass by the end of their lives.
+# 1. Mass conservation
+# 2. Equation of motion (comes from Navier-Stokes Eq.)
+# 3. Local energy conservation
+# 4. Diffusion of energy between layers
+# 5. Composition evolution
 #
-# ### - Stars will also grow - a lot! Stars go through various stages of expansion (and also contraction), and will in some cases grow to be 1000x their size when they were born.
+# <img src="data/images/stellar_evol.png" alt="Drawing" style="width: 600px;"/>
+#
+#
+# ### We won't focus too much on these, but just keep in mind that $\partial x / \partial y$ means how $x$ changes whenever $y$ changes. So if you are considering a "static" situation (one that is not changing in time), you can assume that any terms with a $t$ in the denominator are essentially 0. 
+
+
+
+# ### Effect of composition: what are metals in astronomy?
+#
+# ### What is the effect of metallicity $Z$ on stellar evolution?
+#
+# ### What is the effect of cosmic evolution on metallicity?
+#
+# <img src="data/images/kobayashi.png" alt="Drawing" style="width: 1000px;"/>
+# [Kobayashi et al. (2020)]
+
+
+
+# #### Stars age at different rates. The more _massive_ star star, the faster it ages, and the shorter its life will be.
+#
+# ##### - Stars can lose mass through _winds_. More massive stars have higher winds, so they will lose more mass by the end of their lives.
+#
+# ##### - Stars will also grow - a lot! Stars go through various stages of expansion (and also contraction), and will in some cases grow to be 1000x their size when they were born.
 
 
 # +
 # Make plot of the evolution of the mass and radius with time
 
-fig, axes = plt.subplots(ncols=2, nrows=2, figsize=(10, 5))
+fig, axes = plt.subplots(ncols=2, nrows=2, figsize=(8, 5))
 axs = axes.flatten()
 fig.canvas.header_visible = False
 colormap = mpl.cm.rainbow
@@ -251,23 +277,37 @@ for index in range(10):
     
 fig.tight_layout()    
 # -
-# ## Do you understand all of these plots? What are the units being used?
+# #### Do you understand all of these plots? What are the units being used?
 #
-# ## What is the difference between the two plots in the top row? Which one is clearer? What about the bottom row?
+# #### What is the difference between the two plots in the top row? Which one is clearer? What about the bottom row?
 #
+# #### Why do the mass tracks go down?
 
 
 
-# ## In reality, we don't always know the mass or radius of a star just by looking at it. One of the most common ways we study stars is by instead measuring their _Luminosity_ (or Brightness) and their _Temperature_. These are quantities that can be measured in a fairly straightforward way using telescopes with even very basic filters. 
+
+
+# #### In reality, we don't always know the mass or radius of a star just by looking at it. One of the most common ways we study stars is by instead measuring their _Luminosity_ (or Brightness) and their _Temperature_. These are quantities that can be measured in a fairly straightforward way using telescopes with even very basic filters. 
 #
-# ## When we plot the Luminosity ($L$) vs the Effective Temperature ($T_{eff}$), we create a [Hertzsprung-Russell](https://en.wikipedia.org/wiki/Hertzsprung%E2%80%93Russell_diagram) diagram, or an HR diagram for short. 
+# #### When we plot the Luminosity ($L$) vs the Effective Temperature ($T_{eff}$), we create a [Hertzsprung-Russell](https://en.wikipedia.org/wiki/Hertzsprung%E2%80%93Russell_diagram) diagram, or an HR diagram for short (named after early astronomers Ejnar Hertzsprung and Henry Norris Russell). 
 #
-#  <img src="data/images/hr_diag.png" alt="Drawing" style="width: 800px;"/>
+#  <img src="data/images/hr_diag.png" alt="Drawing" style="width: 600px;"/>
+
+
+
+# ### As our understanding of stars and stellar evolution has expanded, we now believe stars age through various _stellar tracks_ in the HR diagram. 
+#
+#  <img src="data/images/hurley_tracks.png" alt="Drawing" style="width: 600px;"/>
+#  [Hurley et al. (2000)]
+#
+# #### There's a lot of physical intuition that can be gained from studying these, but we won't go into all the details here. Importantly, these tracks don't tell you how long a star spends in each part of the diagram, but the time spent at each phase is the critical factor to matching the features in the HR diagram.
+
+
 
 
 
 #
-# ## In the code below, we will make an HR diagram, and fill it with a bunch of simulated stars. As we increase the age, we will see how they jump through the diagram.
+# #### In the code below, we will make an HR diagram, and fill it with a bunch of simulated stars. As we increase the age, we will see how they jump through the diagram.
 
 # +
 ## Create HR diagram that evolves in time
@@ -339,7 +379,7 @@ def get_star_properties(max_time, N_timesteps, logTime, N_simulations):
 # +
 ### USER SETTINGS: adjust these as you like
 
-max_time = 14000 # Myr
+max_time = 15000 # Myr
 N_timesteps = 1e6 
 logTime = True
 N_simulations = 250
@@ -355,7 +395,7 @@ make_HR_diag(fig, ax) # Add the background of an HR diagram
 
 def construct_plot(fig, ax, plot_static_HR, add_background_cluster, which_cluster, speed):
     if add_background_cluster:
-        cluster = ["NGC6362", "NGC104", "M13"][which_cluster]
+        cluster = ["NGC6362", "M67", "pleiades"][which_cluster]
         # Overplot with NCG6362
         image = plt.imread('data/images/{}_HR.png'.format(cluster))
         im = ax.imshow(image, extent=[0, 1, 0, 1], aspect='auto', transform=ax.transAxes)
@@ -381,8 +421,8 @@ def construct_plot(fig, ax, plot_static_HR, add_background_cluster, which_cluste
 #######################
 
 ### SET THESE VALUES AS YOU LIKE
-plot_static_HR = False
-add_background_cluster = True
+plot_static_HR = True
+add_background_cluster = False
 which_cluster = 0 # Choose between 0, 1, and 2
 speed = 1
 
@@ -390,41 +430,189 @@ construct_plot(fig, ax, plot_static_HR, add_background_cluster, which_cluster, s
 # -
 
 
-# # 2. Which stars form Black Holes
+# ### 2. Which stars form Black Holes
 #
-# ## Now we've seen how stars of different masses evolve. But how do they end their lives?
+# #### Now we've seen how stars of different masses evolve. But how do they end their lives?
 #
-#  <img src="data/images/remnant_mass_func.png" alt="Drawing" style="width: 600px;"/>
+# <img src="data/images/remnant_mass_func.png" alt="Drawing" style="width: 600px;"/>
+# [Heger, Mueller, & Mandel (2024)]
+
+
+
+
+# #### If this plot looks confusing to you, that's kind of the point. It's confusing to us, too! 
 #
-#  From Heger, Mueller, & Mandel (2024)
-
-
-
-
-# ## If this plot looks confusing to you, that's kind of the point. It's confusing to us, too! 
+# ##### This is an ongoing field of research, but there are a few things we understand fairly well.
 #
-# ### This is an ongoing field of research, but there are a few things we understand fairly well.
+# ##### Stars less than roughly 8x the mass of the sun (or 8 $M_\odot$) are considered "low-mass" stars. They will slowly lose their outer envelopes throughout their whole lives, until all that's left is the hot core of the star. Like an ember after a fire, this core will simply spend its final days cooling down.
 #
-# ### Stars less than roughly 8x the mass of the sun (or 8 $M_\odot$) are considered "low-mass" stars. They will slowly lose their outer envelopes throughout their whole lives, until all that's left is the hot core of the star. Like an ember after a fire, this core will simply spend its final days cooling down.
-#
-# ### By contrast, stars greater than ~8 $M_\odot$, the massive stars, will continue burning new elements in their core until they can't go any further. These stars end their lives in bright _Supernova_ explosions. These explosions are so luminous, that they can be seen easily in distant galaxies. The few times in history that they have occurred in our galaxy, the Milky Way, they appeared like a bright star that could be seen in broad daylight.
+# ##### By contrast, stars greater than ~8 $M_\odot$, the massive stars, will continue burning new elements in their core until they can't go any further. These stars end their lives in bright _Supernova_ explosions. These explosions are so luminous, that they can be seen easily in distant galaxies. The few times in history that they have occurred in our galaxy, the Milky Way, they appeared like a bright star that could be seen in broad daylight.
 
 
 
-# ## Unfortunately, supernovae are very complicated to simulate
+# #### Unfortunately, supernovae are very complicated to simulate
 
 YouTubeVideo('bxKwMGgAkdQ', width=800, height=500)
 
 
 
-# ## The important thing to remember is that only massive stars explode as supernovae, and after the explosion you end up with _either_ a Black Hole or a _Neutron Star_. 
+# #### The important thing to remember is that only massive stars explode as supernovae, and after the explosion you end up with a _compact object_: either a Black Hole or a Neutron Star. 
 #
-# ### - A neutron star is the densest possible form of matter: a teaspoon of neutron star matter weighs more than a mountain!
+# ##### - A neutron star is the densest possible form of matter: a teaspoon of neutron star matter weighs more than a mountain!
 #
-# ### - But during some supernovae, the neutron star can keep growing. And if it gets too big, ~2 $M_\odot$, it will collapse into the other thing denser than a neutron star: a black hole. 
+# ##### - But during some supernovae, the neutron star can keep growing. And if it gets too big, ~2 $M_\odot$, it will collapse into the other thing denser than a neutron star: a black hole. 
+#
+# <img src="data/images/ertl_sn_landscape.png" alt="Drawing" style="width: 800px; "/>
+# [Ertl et al. (2020)]
+#
 
 
 
-# ### ❓ Q: What are 3 things you didn't understand about this session?
+# #### Supernova explosions involve a lot of sudden mass loss, as much of the stellar envelope is blasted away. In addition to this, supernova explosions are expected to be very _asymmetric_. That means you have a lot more mass ejecta moving in one direction than another. 
+#
+# <img src="data/images/Crab_Nebula.jpg" alt="Drawing" style="width: 400px; "/>
+# [The Crab Nebula (in visible light), containing a young pulsar]
+#
+# <img src="data/images/crab_xray.jpg" alt="Drawing" style="width: 400px; "/>
+# [The Crab Nebula (in X-ray light), showing beamed emission]
+
+
+
+# #### From your physics courses, you maybe have heard of momentum, 
+#
+# ##### - Momentum is mass times velocity: $p = m*v$. 
+#
+# ##### - Momentum is a _conserved quantity_, $\Sigma_i p_i = 0$ which means that if you have a pool ball hit a bowling ball, the bowling ball will move in the same direction with a lower velocity. 
+#
+# <img src="data/images/pool_table.jpg" alt="Drawing" style="width: 600px; "/>
+#
+# Some momentum exercises:
+#
+# 1. A 150 g pool ball is shot horizontally at 2 m/s, and collides with an equal mass ball at a 45 degree angle. Assuming momentum conservation, and that the kinetic energy of both balls is equal after the fact, what happens to both balls at the end? What happens to the energy?
+# 2. A 3000 kg cannon fires a 30 kg cannon ball in space. The cannon ball moves at roughly 1500 feet per second (according to the US military). What happens to the cannon? Answer in cgs. 
+
+
+
+# #### In the case of supernovae, the dense remnant core that you leave behind after the explosion (either the neutron star or the black hole) has to have the opposite momentum as all of the ejecta. 
+#
+# ##### - This results in a momentum boost at birth, or a "natal kick" for the compact object. 
+#
+# ##### - We typically find that neutron stars have very high birth kicks, ~300 km/s, while black holes have lower kicks around ~30 km/s. 
+#
+# ##### - However, even these low kicks are _really, really fast_ compared to the speeds of things on Earth. 
+#
+# <img src="data/images/cannonball.jpg" alt="Drawing" style="width: 600px; "/>
+# [Cannonball pulsar]
+#
+# 1. Calculate how much faster, compared to e.g a car.
+# 2. If 10 $M_\odot$ star explodes in a supernova leaving a 2 $M_\odot$ neutron star moving at 300 km/s, how fast is the ejecta moving? Supernova ejecta are often measured to be streaming out at 30,000 km/s, how can we make sense of this?
+# 3. If the same star forms the same neutron star with the same kick, but then half of the envelope material falls back to create a black hole, what are the new masses and velocities in the problem? What if all of the envelope material falls back?
+#
+
+
+
+# ### Of course, this is astronomy, so we fit bad models to worse data. 
+#
+# #### This is the derived natal kick distribution for neutron stars from a variety of studies
+#
+# <img src="data/images/odoherty_nskicks.png" alt="Drawing" style="width: 600px; "/>
+# [O'doherty et al. 2023]
+
+
+
+
+
+# # On Friday, we will continue discussing black holes (and neutron stars), their masses, natal kicks, and progenitors, but in the broader context of binary stars and binary evolution. We will also look at the uncertainties towards forming binary black holes.
+
+
+
+# ### ❓ Q: We expect that nearly all of this was new for you. What are some things you didn't understand about this session?
+
+
+
+# +
+## If there's time, show COMPAS evolution below
+
+# +
+# Scripts to simplify COMPAS run
+
+def generate_outdir(str_length=10):
+    # Need a random string to hold the data
+    np.random.seed(np.datetime64('now').astype(int))
+    ascii_lowercase = list('abcdefghijklmnopqrstuvwxyz')
+    random_str = ''.join(np.random.choice(ascii_lowercase) for i in range(str_length))
+    return random_str
+
+def get_data(outpath, detailed=0):
+    try:
+        return h5.File('data/on_the_fly_data/{}/Detailed_Output/BSE_Detailed_Output_{}.h5'.format(outpath, detailed), 'r')
+    except:
+        try:
+            return h5.File('data/on_the_fly_data/{}/COMPAS_Output.h5'.format(outpath), 'r')
+        except:
+            return None
+            
+def run_compas(args="", num=1, detailed=False, single=True):
+    outdir=generate_outdir()
+    compas_exe = "/opt/COMPAS/bin/opt/COMPAS/bin/COMPAS"
+    if not os.path.isfile(compas_exe):
+        compas_exe = "COMPAS"
+    args = str(args)
+    if detailed:
+        args += " --detailed"
+    if single:
+        args += " -a 10000"
+    # !{compas_exe} -n {num} -o 'data/on_the_fly_data/' -c {outdir} {args}
+    data = get_data(outdir)
+    return data, outdir
+    
+
+
+# -
+
+
+# Example 1
+data, _ = run_compas()
+
+
+print(data.keys())
+#SN = data['BSE_Supernovae']
+#printCompasDetails(SN)
+
+
+
+
+# Example 2
+data, outdir = run_compas("--detailed", num=5)
+
+print(outdir)
+deets = get_data(outdir, detailed=3)
+
+printCompasDetails(deets)
+
+print(deets.keys())
+
+# +
+time = deets['Time'][()]
+rad = deets['Radius(1)'][()]
+fig, ax = plt.subplots()
+
+ax.plot(time, rad)
+ax.loglog()
+# -
+
+
+
+
+
+# ## Challenge problems:
+#
+# 1. Simulate a population of 100 stars, plot a histogram of the natal kicks for all neutron stars
+#
+# 2. Do detailed evolution for a star of a given mass, and a star of the same mass at a luminosity $Z = Z_\odot/10$. Plot their trajectories in an HR diagram.
+#
+# 3. Plot the Main Sequence for a population of stars at $Z_\odot$, and a second population at $Z = Z_\odot/10$. What do you notice? (hint: you don't need detailed evolution)
+#
+#
 
 
