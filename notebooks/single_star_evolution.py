@@ -557,7 +557,7 @@ def get_data(outpath, detailed=0):
             
 def run_compas(args="", num=1, detailed=False, single=True):
     outdir=generate_outdir()
-    compas_exe = "/opt/COMPAS/bin/opt/COMPAS/bin/COMPAS"
+    compas_exe = "/opt/COMPAS/bin/COMPAS"
     if not os.path.isfile(compas_exe):
         compas_exe = "COMPAS"
     args = str(args)
