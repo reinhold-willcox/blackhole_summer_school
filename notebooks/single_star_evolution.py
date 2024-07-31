@@ -23,6 +23,7 @@
     # Import external packages, and supply settings used throughout the tutorial - you can ignore this cell
 import numpy as np
 import h5py as h5
+import os
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
@@ -532,6 +533,8 @@ YouTubeVideo('bxKwMGgAkdQ', width=800, height=500)
 
 # +
 ## If there's time, show COMPAS evolution below
+
+# COMPAS documentation: https://compas.readthedocs.io/en/latest/index.html
 
 # +
 # Scripts to simplify COMPAS run
