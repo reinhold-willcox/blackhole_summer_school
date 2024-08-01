@@ -22,12 +22,13 @@
 import numpy as np
 import h5py as h5
 from scipy.optimize import fsolve
+import scipy.stats as ss
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from ipywidgets import AppLayout, FloatSlider, Play, IntSlider, widgets, HBox, VBox, interact, interactive
 from IPython.display import YouTubeVideo
-from scripts.BHSummerSchoolUtils import printCompasDetails, get_data, make_interactive_widget
+from scripts.BHSummerSchoolUtils import printCompasDetails, make_interactive_widget
 
 # %matplotlib widget
 # -
@@ -265,10 +266,23 @@ plot_equipotential_surfaces(fig, ax, m1, m2, a, zoom=200, xcntr=0, num_contours=
 #
 # <img src="data/images/accreting_binary.jpg" alt="Drawing" style="width: 600px;"/>
 #
-# #### These different scenarios can change the final separation and period of the binaries after the interaction, and therefore the further evolution of the binary. In the modeling community, we are working hard to get constraints on these parameters, in order to better understand the final state of binary systems. 
 #
 
+
+
+
+
+# ### If the mass transfer rate becomes too high, the donor star can _engulf_ the accretor star. We call this phase the _Common Envelope_ phase, because the core of the donor and the accretor are in a sense "sharing" the same envelope. 
+#
+# #### This phase involves the accretor star spiraling toward the core of the donor. The outcome of the Common Envelope depends on the energy in the orbit, and the energy required to completely remove the envelope of the donor. If you have more orbit in the envelope, the binary will continue to spiral toward each other until the two stars merge together! But if you have enough energy in the orbit, you can strip off the envelope, and what you have left is a very tight binary, consisting of the core of the donor and the accretor star. 
+#
+# ####  This is a great way to bring your stars very close together. Unfortunately, this is one of the biggest uncertainties in binary star evolution modelling, because it is intrinsically a 3D hydrodynamics problem, over many length and timescales.
+#
+# #### These different scenarios can change the final separation and period of the binaries after the interaction, and therefore the further evolution of the binary. In the modeling community, we are working hard to get constraints on these parameters, in order to better understand the final state of binary systems. 
+
 YouTubeVideo('dSDmtUfkfG8', width=800, height=400)
+
+#
 
 
 
@@ -305,11 +319,183 @@ YouTubeVideo('dSDmtUfkfG8', width=800, height=400)
 #
 # #### From a stellar evolution perspective, you cannot have them form in isolation and be non-interacting. The space needed for both stars to expand to their full size is 2 orders of magnitude above 1 AU. So we must allow for binary interactions (mass transfer) and dynamical effects (supernova kicks) to bring the black holes together.
 #
-#
 # <img src="data/images/gw_inspiral.jpg" alt="Drawing" style="width: 600px;"/>
 
 
 
+# ### Of course this assumed no eccentricity, $e=0$. Is this a valid assumption? The eccentricity should really only be increased if there is a substantial supernova kick. We saw Wednesday that some Neutron Stars get significant kicks (based on the observed pulsars), but Black Holes are much less sure. 
+#
+# #### In fact, we are just now starting to get evidence that some Black Holes get nearly 0 kicks. 
+#
+# #### That suggests the $e=0$ approximation may not be so bad.
+#
+# <img src="data/images/vfts243.png" alt="Drawing" style="width: 600px;"/>
+# [Parameter inference for VFTS 243 (Vigna-Gomez, Willcox, et al. 2024)]
+
+
+
+# ### So now we have some idea how we're modelling the binaries. You need some model for how each star evolves and expands, some model for how to treat mass transfer, and some model for the supernovae.
+#
+# #### If you run your population model enough times, you will end up with some binary black holes. 
+#
+# #### Let's simulate the evolution of some binaries with [COMPAS](https://compas.science/) (a rapid population synthesis code)
+
+# +
+# Scripts to simplify COMPAS run
+
+def generate_outdir(str_length=10):
+    # Need a random string to hold the data
+    np.random.seed(np.datetime64('now').astype(int))
+    ascii_lowercase = list('abcdefghijklmnopqrstuvwxyz')
+    random_str = ''.join(np.random.choice(ascii_lowercase) for i in range(str_length))
+    return random_str
+
+def get_data(outpath, detailed=0):
+    try:
+        return h5.File('data/binaries/{}/COMPAS_Output.h5'.format(outpath), 'r')
+    except:
+        try:
+            return h5.File('data/on_the_fly_data/{}/Detailed_Output/BSE_Detailed_Output_{}.h5'.format(outpath, detailed), 'r')
+        except:
+            try:
+                return h5.File('data/on_the_fly_data/{}/COMPAS_Output.h5'.format(outpath), 'r')
+            except:
+                return None
+            
+def run_compas(args="", random_seed=0, num=1, detailed=False, single=False):
+    outdir=generate_outdir()
+    compas_exe = "/opt/COMPAS/bin/COMPAS"
+    if not os.path.isfile(compas_exe):
+        compas_exe = "COMPAS"
+    args = str(args)
+    args += " --random "+str(random_seed)
+    if detailed:
+        args += " --detailed"
+    if single:
+        args += " -a 10000"
+    # !{compas_exe} -n {num} -o 'data/on_the_fly_data/' -c {outdir} {args}
+    data = get_data(outdir)
+    return data, outdir
+    
+
+# -
+
+data, outdir = run_compas(num=100, random_seed=0)
+
+
+
+# ### That was pretty fast! 100 binaries in about 3 seconds. 
+#
+# #### How many DCOs were formed? How many were binary black holes?
+#
+# #### How many will merge _in a Hubble time_ (i.e the age of the universe)? To find this, we'll have to look closer at the data.
+
+DC = data['BSE_Double_Compact_Objects']
+printCompasDetails(DC)
+
+
+
+# ### Here we can see that there were 5 DCO's formed, but none of them will merge in a Hubble Time (the `Merges_Hubble_Time` parameter is always `0 = False`). The stellar type is a bit confusing, but `13` means Neutron Star and `14` means Black Hole. So here we have all 5 are binary black holes.
+#
+# #### We can write up a script to analyze this faster.
+
+# +
+def analyze_double_compact_objects(data, return_masses=False):
+    DC = data['BSE_Double_Compact_Objects']
+    merges_hubble_time = DC['Merges_Hubble_Time'][()] == 1
+    stellar_type_1 = DC['Stellar_Type(1)'][()]
+    stellar_type_2 = DC['Stellar_Type(2)'][()]
+    mass_1 = DC['Mass(1)'][()]
+    mass_2 = DC['Mass(2)'][()]
+    # BBH mask 
+    mask = merges_hubble_time  & (stellar_type_1 == 14) & (stellar_type_2 == 14)
+    print("We have {} BBH merging in a Hubble time".format(np.sum(mask)))
+    if return_masses:
+        return mass_1[mask], mass_2[mask]
+    else:
+        return
+
+# Run on the data we already produced
+analyze_double_compact_objects(data)
+# -
+
+
+
+# ### Challenge problem: rerun the simulator (COMPAS), with different numbers of binaries, and different _random seeds_ to see if you can make more merging binary black holes. 
+#
+# #### The more binaries you simulate, the longer it will take, but the more likely you'll find one. 
+#
+# #### Changing the random seed means you are looking in a different part of the _parameter space_ as your neighbor, so you are not repeating the same calculations. 
+
+
+
+# ### If you spent a bit of time on the previous problem, you may have discovered: binary black holes are a _very_ rare outcome of binary evolution. To be able to do any statistics, you need a large sample of these. That's why we use rapid population synthesis instead of detailed stellar modelling. The detailed models are too slow.
+#
+# #### To help you out, I've uploaded a few pre-computed datasets. These were simulations of 1 million binaries (challenge: estimate how long that took). 
+#
+# #### How many merging binary black holes were formed?
+
+models = [ 'alpha0.1', 'alpha1', 'alpha10']
+data = get_data('data/binaries/{}'.format(models[0])) # Set the index based on the model you want
+analyze_double_compact_objects(data)
+
+
+
+# ### Now we have something approaching a population, so let's take a look at what the observations tell us.
+#
+# #### This is the observed _chirp mass_ distsribution from the LVK collaboration, for all of the binary black holes detected in the first 3 observing runs (roughly 100). 
+#
+# #### The bottom plot is the best fit model based on some naive model set used by the collaboration.
+#
+# <img src="data/images/lvk_chirpmass.png" alt="Drawing" style="width: 600px;"/>
+# (Abbott et al. 2021)
+
+
+
+# ### Let's see how this compares to the predictions from COMPAS. First we need a function to calculate the _chirp mass_ from the two component masses. Because the chirp mass is the best inferred parameter from a Gravitational Wave, it makes more sense to convert the predictions to chirp mass, instead of trying to break apart the observations into component masses. 
+#
+# ## $M_{chirp} = \frac{m_1^{3/5} m_2^{3/5}}{(m_1 + m_2)^{1/5}}$
+
+# +
+def calculate_chirp_mass(m1, m2):
+    return  np.power(m1, 3/5) * np.power(m2, 3/5) / np.power(m1 + m2, 1/5)
+
+fig, ax = plt.subplots()
+
+for ii in range(3):
+    model = models[ii]
+    print(model)
+    data = get_data(model)
+    m1, m2 = analyze_double_compact_objects(data, return_masses=True)
+    mChirp = calculate_chirp_mass(m1, m2)
+    m_grid = np.linspace(0, 20, 1000)
+    density = sum(ss.norm(m).pdf(m_grid) for m in mChirp)
+    #density = density/sum(density)
+    ax.plot(m_grid, density, lw=4, label=model)
+    ax.fill_between(m_grid, density, alpha=0.2)#, label=model)
+    print()
+    
+ax.legend()
+ax.set_ylabel("Number of mergers", fontsize=16)
+ax.set_xlabel("$M_{chirp}$", fontsize=16)
+ax.set_title("Predicted binary black hole mass distribution")
+# -
+
+
+
+# ### Great! Now we can compare directly to the LVK distribution, as well as to each model.
+#
+# #### What is the difference between the models?
+
+
+
+# ### How does this compare to the LVK distribution? 
+#
+# #### That's right, it's really bad. What are some possible reasons for this?
+#
+# #### - Modelling challenges? Cosmic history? Observational biases?
+#
+# <img src="data/images/mssfr.png" alt="Drawing" style="width: 800px;"/>
 
 
 
@@ -319,9 +505,7 @@ YouTubeVideo('dSDmtUfkfG8', width=800, height=400)
 
 
 
-
-
-
-# ### ❓ Q: We expect that nearly all of this was new for you. What are some things you didn't understand about this session?
+#
+# ### ❓ Questions?
 
 

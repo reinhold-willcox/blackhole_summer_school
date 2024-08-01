@@ -1,9 +1,0 @@
---initial-mass-1 10.0 --initial-mass-2 0.5 -a 10000
---initial-mass-1 15.0 --initial-mass-2 0.5 -a 10000
---initial-mass-1 20.0 --initial-mass-2 0.5 -a 10000
---initial-mass-1 25.0 --initial-mass-2 0.5 -a 10000
---initial-mass-1 30.0 --initial-mass-2 0.5 -a 10000
---initial-mass-1 35.0 --initial-mass-2 0.5 -a 10000
---initial-mass-1 40.0 --initial-mass-2 0.5 -a 10000
---initial-mass-1 45.0 --initial-mass-2 0.5 -a 10000
---initial-mass-1 50.0 --initial-mass-2 0.5 -a 10000
