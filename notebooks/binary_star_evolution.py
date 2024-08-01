@@ -21,6 +21,7 @@
 # Import external packages, and supply settings used throughout the tutorial - you can ignore this cell
 import numpy as np
 import h5py as h5
+import os
 from scipy.optimize import fsolve
 import scipy.stats as ss
 import matplotlib as mpl
@@ -436,7 +437,7 @@ analyze_double_compact_objects(data)
 # #### How many merging binary black holes were formed?
 
 models = [ 'alpha0.1', 'alpha1', 'alpha10']
-data = get_data('data/binaries/{}'.format(models[0])) # Set the index based on the model you want
+data = get_data(models[0]) # Set the index based on the model you want
 analyze_double_compact_objects(data)
 
 
@@ -499,13 +500,5 @@ ax.set_title("Predicted binary black hole mass distribution")
 
 
 
-
-
-
-
-
-
 #
 # ### ❓ Questions?
-
-
