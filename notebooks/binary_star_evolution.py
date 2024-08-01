@@ -500,5 +500,11 @@ ax.set_title("Predicted binary black hole mass distribution")
 
 
 
+# ### Last: history of BH discoveries and growth of BH science
+
+# # This is the golden age of astronomy, and black hole astronomy in particular!
+
+
+
 #
 # ### ❓ Questions?
